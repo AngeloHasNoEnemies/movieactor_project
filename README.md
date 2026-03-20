@@ -48,7 +48,7 @@ cd movieactor-api
 
 **2. Install dependencies**
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 **3. Add your TMDB API key**
@@ -67,6 +67,11 @@ python manage.py migrate
 **5. Start the server**
 ```bash
 python manage.py runserver
+```
+
+**5. Visit**
+```bash
+http://127.0.0.1:8000/swagger/
 ```
 
 ---

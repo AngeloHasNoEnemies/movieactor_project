@@ -85,7 +85,7 @@ class MovieActorSummaryViewTests(TestCase):
     @patch('api.views.fetch_movie_from_tmdb')
     def test_external_api_failure_returns_502(self, mock_tmdb):
         import requests as req
-        mock_tmdb.side_effect = req.exceptions.RequestException("Connection refused")
+        mock_tmdb.side_effect = req.exceptions.ConnectionError("Connection refused")
         response = self.client.get(self.url, {'title': 'Inception'})
         self.assertEqual(response.status_code, 502)
         print("✅ Test 5 passed: External API failure returns 502")

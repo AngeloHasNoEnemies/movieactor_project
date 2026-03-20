@@ -12,13 +12,13 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-# !! Replace with your real free TMDB API key !!
-TMDB_API_KEY = "YOUR_TMDB_API_KEY_HERE"
+
+TMDB_API_KEY = "fd1f7f208c259d51a736f10da715e460"
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TVMAZE_BASE_URL = "https://api.tvmaze.com"
 
 
-# ── Member A: Fetch Functions ─────────────────────────────────────────────────
+
 
 def fetch_movie_from_tmdb(title: str) -> dict | None:
     search_url = f"{TMDB_BASE_URL}/search/movie"
@@ -51,7 +51,7 @@ def fetch_actors_from_tvmaze(movie_title: str) -> list:
     return response.json()
 
 
-# ── Member C: Data Transformation ────────────────────────────────────────────
+
 
 def transform_data(movie: dict, actors: list) -> dict:
     """
@@ -128,7 +128,7 @@ def transform_data(movie: dict, actors: list) -> dict:
     }
 
 
-# ── Member B: Main API View ───────────────────────────────────────────────────
+
 
 class MovieActorSummaryView(APIView):
     """GET /api/v1/movie-summary/?title=<movie_title>"""
