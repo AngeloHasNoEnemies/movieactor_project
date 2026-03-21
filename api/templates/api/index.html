@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movie-Actor Integration API</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d1b2a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #0d1b2a;
+      border-bottom: 3px solid #2e86c1;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    header span {
+      font-size: 12px;
+      color: #aed6f1;
+      background: #1b4f72;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ── Hero Section ── */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .hero h2 {
+      font-size: 42px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .hero h2 span {
+      color: #2e86c1;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: #aed6f1;
+      margin-bottom: 40px;
+    }
+
+    /* ── Search Box ── */
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 0 20px;
+    }
+
+    .search-container input {
+      width: 420px;
+      padding: 14px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #1b4f72;
+      background: #162436;
+      color: #ffffff;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .search-container input::placeholder { color: #7f8c8d; }
+    .search-container input:focus { border-color: #2e86c1; }
+
+    .search-container button {
+      padding: 14px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      background: #2e86c1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .search-container button:hover { background: #1b6fa8; }
+    .search-container button:disabled { background: #555; cursor: not-allowed; }
+
+    /* ── Quick Search Pills ── */
+    .quick-search {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 13px;
+      color: #7f8c8d;
+    }
+
+    .quick-search span {
+      margin: 0 6px;
+      padding: 4px 12px;
+      border: 1px solid #1b4f72;
+      border-radius: 20px;
+      cursor: pointer;
+      color: #aed6f1;
+      transition: all 0.2s;
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    .quick-search span:hover {
+      background: #1b4f72;
+      color: white;
+    }
+
+    /* ── Status Messages ── */
+    .status {
+      text-align: center;
+      margin: 40px auto;
+      max-width: 600px;
+      padding: 0 20px;
+    }
+
+    .loading {
+      color: #aed6f1;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #1b4f72;
+      border-top: 3px solid #2e86c1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      background: #2c1010;
+      border: 1px solid #e74c3c;
+      border-left: 4px solid #e74c3c;
+      border-radius: 8px;
+      padding: 16px 20px;
+      text-align: left;
+    }
+
+    .error-box .error-code {
+      font-size: 22px;
+      font-weight: 700;
+      color: #e74c3c;
+      margin-bottom: 4px;
+    }
+
+    .error-box .error-msg { color: #f1948a; font-size: 14px; }
+
+    /* ── Results ── */
+    .results {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+
+    /* Movie Card */
+    .movie-card {
+      background: #162436;
+      border: 1px solid #1b4f72;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .movie-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .movie-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .movie-tagline {
+      font-size: 14px;
+      color: #7f8c8d;
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    .popularity-badge {
+      background: #2e86c1;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .movie-overview {
+      font-size: 14px;
+      color: #bdc3c7;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: #0d1b2a;
+      border: 1px solid #1b4f72;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #7f8c8d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2e86c1;
+    }
+
+    /* Genres */
+    .genres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .genre-tag {
+      background: #1b4f72;
+      color: #aed6f1;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    /* Quick Facts */
+    .quick-facts {
+      background: #0d1b2a;
+      border-left: 3px solid #2e86c1;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #aed6f1;
+      font-style: italic;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1b4f72;
+    }
+
+    /* Actors Grid */
+    .actors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .actor-card {
+      background: #162436;
+      border: 1px solid #1b4f72;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .actor-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #0d1b2a;
+    }
+
+    .actor-image-placeholder {
+      width: 100%;
+      height: 180px;
+      background: #1b4f72;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #2e86c1;
+    }
+
+    .actor-info { padding: 12px; }
+    .actor-name { font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
+    .actor-detail { font-size: 11px; color: #7f8c8d; margin-top: 2px; }
+
+    /* Meta info */
+    .meta-bar {
+      text-align: center;
+      font-size: 11px;
+      color: #4a5568;
+      margin-top: 8px;
+    }
+
+    /* No actors message */
+    .no-actors {
+      background: #162436;
+      border: 1px solid #1b4f72;
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    /* Hidden */
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Movie-Actor Integration API</h1>
+    <span>IT322 &mdash; Integrative Programming</span>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h2>Search any <span>Movie</span></h2>
+    <p>Get movie details from TMDB and related actors from TVmaze — combined into one response.</p>
+
+    <div class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Enter a movie title..."
+        onkeydown="if(event.key==='Enter') searchMovie()"
+        autofocus
+      />
+      <button id="searchBtn" onclick="searchMovie()">Search</button>
+    </div>
+
+    <div class="quick-search">
+      Try:
+      <span onclick="quickSearch('Inception')">Inception</span>
+      <span onclick="quickSearch('Avengers')">Avengers</span>
+      <span onclick="quickSearch('The Dark Knight')">The Dark Knight</span>
+      <span onclick="quickSearch('Interstellar')">Interstellar</span>
+      <span onclick="quickSearch('Parasite')">Parasite</span>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status hidden" id="status">
+    <div class="loading hidden" id="loading">
+      <div class="spinner"></div>
+      <span>Fetching movie data...</span>
+    </div>
+    <div class="error-box hidden" id="errorBox">
+      <div class="error-code" id="errorCode"></div>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results hidden" id="results">
+
+    <!-- Movie Card -->
+    <div class="movie-card">
+      <div class="movie-header">
+        <div>
+          <div class="movie-title" id="movieTitle"></div>
+          <div class="movie-tagline" id="movieTagline"></div>
+        </div>
+        <div class="popularity-badge" id="popularityBadge"></div>
+      </div>
+
+      <div class="movie-overview" id="movieOverview"></div>
+
+      <div class="genres" id="movieGenres"></div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Rating</div>
+          <div class="stat-value" id="statRating"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Runtime</div>
+          <div class="stat-value" id="statRuntime"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Budget</div>
+          <div class="stat-value" id="statBudget"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Release</div>
+          <div class="stat-value" id="statRelease"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Votes</div>
+          <div class="stat-value" id="statVotes"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Language</div>
+          <div class="stat-value" id="statLanguage"></div>
+        </div>
+      </div>
+
+      <div class="quick-facts" id="quickFacts"></div>
+    </div>
+
+    <!-- Actors Section -->
+    <div class="section-title">Related People from TVmaze</div>
+    <div id="actorsContainer"></div>
+
+    <div class="meta-bar" id="metaBar"></div>
+  </div>
+
+  <script>
+    function quickSearch(title) {
+      document.getElementById('searchInput').value = title;
+      searchMovie();
+    }
+
+    function showLoading() {
+      document.getElementById('status').classList.remove('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('errorBox').classList.add('hidden');
+      document.getElementById('results').classList.add('hidden');
+    }
+
+    function showError(code, message) {
+      document.getElementById('status').classList.remove('hidden');
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('errorBox').classList.remove('hidden');
+      document.getElementById('errorCode').textContent = code;
+      document.getElementById('errorMsg').textContent = message;
+      document.getElementById('results').classList.add('hidden');
+    }
+
+    function showResults(data) {
+      document.getElementById('status').classList.add('hidden');
+      document.getElementById('results').classList.remove('hidden');
+
+      const movie = data.movie;
+      const actors = data.related_actors || [];
+
+      // Movie details
+      document.getElementById('movieTitle').textContent = movie.title || 'Unknown';
+      document.getElementById('movieTagline').textContent = movie.tagline !== 'N/A' ? `"${movie.tagline}"` : '';
+      document.getElementById('popularityBadge').textContent = movie.popularity_label || '';
+      document.getElementById('movieOverview').textContent = movie.overview || 'No overview available.';
+      document.getElementById('quickFacts').textContent = data.quick_facts || '';
+
+      // Stats
+      document.getElementById('statRating').textContent = `${movie.vote_average}/10`;
+      document.getElementById('statRuntime').textContent = movie.runtime || 'N/A';
+      document.getElementById('statBudget').textContent = movie.budget || 'N/A';
+      document.getElementById('statRelease').textContent = movie.release_date || 'N/A';
+      document.getElementById('statVotes').textContent = (movie.vote_count || 0).toLocaleString();
+      document.getElementById('statLanguage').textContent = movie.original_language || 'N/A';
+
+      // Genres
+      const genresEl = document.getElementById('movieGenres');
+      genresEl.innerHTML = '';
+      (movie.genres || []).forEach(g => {
+        const tag = document.createElement('span');
+        tag.className = 'genre-tag';
+        tag.textContent = g;
+        genresEl.appendChild(tag);
+      });
+
+      // Actors
+      const container = document.getElementById('actorsContainer');
+      container.innerHTML = '';
+
+      if (actors.length === 0) {
+        container.innerHTML = '<div class="no-actors">No related people found on TVmaze for this title.</div>';
+      } else {
+        const grid = document.createElement('div');
+        grid.className = 'actors-grid';
+
+        actors.forEach(actor => {
+          const card = document.createElement('div');
+          card.className = 'actor-card';
+
+          const imgHtml = actor.profile_image
+            ? `<img class="actor-image" src="${actor.profile_image}" alt="${actor.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="actor-image-placeholder" style="display:none;">&#128100;</div>`
+            : `<div class="actor-image-placeholder">&#128100;</div>`;
+
+          card.innerHTML = `
+            ${imgHtml}
+            <div class="actor-info">
+              <div class="actor-name">${actor.name || 'Unknown'}</div>
+              <div class="actor-detail">${actor.country || 'N/A'}</div>
+              <div class="actor-detail">${actor.birthday || 'N/A'}</div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+      }
+
+      // Meta bar
+      const sources = data.meta && data.meta.sources ? data.meta.sources.join(' + ') : '';
+      document.getElementById('metaBar').textContent = `Sources: ${sources} | Version: ${data.meta ? data.meta.api_version : 'v1'}`;
+    }
+
+    async function searchMovie() {
+      const title = document.getElementById('searchInput').value.trim();
+      const btn = document.getElementById('searchBtn');
+
+      if (!title) {
+        showError('400 Bad Request', "Please enter a movie title before searching.");
+        return;
+      }
+
+      showLoading();
+      btn.disabled = true;
+      btn.textContent = 'Searching...';
+
+      try {
+        const response = await fetch(`/api/v1/movie-summary/?title=${encodeURIComponent(title)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError(
+            `${response.status} ${data.error || 'Error'}`,
+            data.message || 'Something went wrong.'
+          );
+        } else {
+          showResults(data);
+        }
+      } catch (err) {
+        showError('Connection Error', 'Could not reach the server. Make sure Django is running.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Search';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -35,7 +35,8 @@ ROOT_URLCONF = 'movieactor_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # This tells Django to look for templates inside each app's templates/ folder
+        'DIRS': [BASE_DIR / 'api' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,6 +68,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ]
 }
+
+# Disable Django's error logging during tests (fixes Python 3.14 compatibility issue)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

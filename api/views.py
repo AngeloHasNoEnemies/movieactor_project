@@ -1,17 +1,14 @@
-"""
-views.py — FULL FILE (Member C adds transform_data)
-Member A added : fetch_movie_from_tmdb(), fetch_actors_from_tvmaze()
-Member C adds  : transform_data()
-Member B added : MovieActorSummaryView
-"""
-
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.shortcuts import render
 
+class FrontendView(APIView):
+    def get(self, request):
+        return render(request, 'api/index.html')
 
 TMDB_API_KEY = "fd1f7f208c259d51a736f10da715e460"
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
